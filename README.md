@@ -54,31 +54,31 @@ This layer contains two main configuration directories:
 
 Reference this layer as a build stage and copy the directories you need:
 
-### Copy everything:
+### Copy everything from Bluefin:
 ```dockerfile
 FROM ghcr.io/projectbluefin/common:latest AS bluefin-common
 
 # Copy all system files
-COPY --from=bluefin-common /system_files /
+COPY --from=bluefin-common /system_files/bluefin /
 ```
 
-### Copy only system configuration:
+### Copy only shared system configuration:
 
 This is what Aurora should use, gives shares the common set of files and keeps the images opinions seperate.
 
 ```dockerfile
 FROM ghcr.io/projectbluefin/common:latest AS bluefin-common
 
-# Copy only /etc configuration
-COPY --from=bluefin-common /system_files/etc /etc
+# Copy only shared configuration
+COPY --from=bluefin-common /system_files/shared /
 ```
 
 ### Copy only the image opinion:
 ```dockerfile
 FROM ghcr.io/projectbluefin/common:latest AS bluefin-common
 
-# Copy only /usr/share configuration
-COPY --from=bluefin-common /system_files/usr /usr
+# Copy only Bluefin's /usr configuration
+COPY --from=bluefin-common /system_files/bluefin/usr /usr
 ```
 
 ## Flatpak Customization
