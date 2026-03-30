@@ -26,10 +26,17 @@ def spawn_and_detach(args):
 def spawn_ujust(id):
     spawn_and_detach(['flatpak-spawn', '--host', 'xdg-terminal-exec', '-x', f'ujust {id}'])
 
+def spawn_brew(app):
+    brew = '/home/linuxbrew/.linuxbrew/bin/brew'
+    spawn_and_detach([
+        'flatpak-spawn', '--host', 'xdg-terminal-exec', '-x',
+        'bash', '-c', f'{brew} install --cask {app}'
+    ])
+
 def handle_jetbrains():
 
     def appid_is_jetbrains(appid):
-        return appid.startswith('com.jetbrains.')
+        return appid.startswith('com.jetbrains.') or appid == ('com.google.AndroidStudio')
 
     match stage:
         case 'setup':
@@ -61,12 +68,52 @@ def handle_jetbrains():
             # always prevent installation of JetBrains flatpaks
             return 'deny'
 
+def handle_code():
+
+    def appid_is_code(appid):
+        return appid == ('com.visualstudio.code') or appid == ('com.vscodium.codium')
+
+    match stage:
+        case 'setup':
+            if transaction_type == 'install' and appid_is_code(transaction_appid):
+                return 'ok'
+            else:
+                return 'pass'
+
+        case 'setup-dialog':
+            return 'ok'
+
+        case 'teardown-dialog':
+            if dialog_response_id == 'download':
+                return 'ok'
+            else:
+                return 'abort'
+
+        case 'catch':
+            return 'abort'
+
+        case 'action':
+            try:
+                if transaction_appid == ('com.vscodium.codium'):
+                    spawn_brew('ublue/tap/vscodium-linux')
+                else:
+                    spawn_brew('ublue/tap/visual-studio-code-linux')
+            except:
+                pass
+            return ''
+
+        case 'teardown':
+            return 'deny'
+
 # ---
 
 response = 'pass'
 match hook_id:
     case 'jetbrains-toolbox':
         response = handle_jetbrains()
+    case 'code':
+        response = handle_code()
 
 print(response)
 sys.exit(0)
+
