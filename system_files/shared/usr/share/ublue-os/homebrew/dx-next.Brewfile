@@ -1,5 +1,8 @@
-cask "ublue-os/experimental-tap/dockerd"
-cask "ublue-os/tap/vscode-linux"
+tap "ublue-os/experimental-tap"
+tap "ublue-os/tap"
+
+cask "ublue-os/experimental-tap/dockerd-linux"
+cask "ublue-os/tap/visual-studio-code-linux"
 cask "android-platform-tools"
 flatpak "org.flatpak.Builder"
 brew "git-svn"
