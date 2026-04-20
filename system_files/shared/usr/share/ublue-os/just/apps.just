@@ -85,6 +85,7 @@ dx-next:
     brew bundle --file=/usr/share/ublue-os/homebrew/dx-next.Brewfile
 
     sudo cp /usr/share/ublue-os/dx/units/* /etc/systemd/system/
+    sudo systemctl daemon-reload
     sudo systemctl enable brew-containerd
     sudo systemctl enable brew-dockerd
 
@@ -112,6 +113,7 @@ dx-next:
     sudo firewall-cmd --reload
 
     sudo cp /usr/share/ublue-os/dx/quadlets/* /etc/containers/systemd/
+    sudo systemctl daemon-reload
     sudo systemctl enable libvirt-quadlet
 
     gum style --foreground 39 "  Incus is available, but not started by default."
