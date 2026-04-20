@@ -1,0 +1,18 @@
+[Unit]
+Description=Incus Container Service
+After=network-online.target
+
+[Container]
+Image=ghcr.io/cmspam/incus-docker:nightly
+AutoUpdate=registry
+ContainerName=incus
+PodmanArgs=--privileged --cgroupns=host --security-opt unmask=/sys/fs/cgroup --pid=host
+Network=host
+
+# Volume mappings
+Volume=/dev:/dev
+Volume=/var/lib/incus:/var/lib/incus
+Volume=/lib/modules:/lib/modules:ro
+
+[Install]
+WantedBy=multi-user.target

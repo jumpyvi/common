@@ -73,3 +73,49 @@ cncf:
         fi
     fi
     bbrew -f "/usr/share/ublue-os/homebrew/cncf.Brewfile"
+
+# Experimental DX mode
+dx-next:
+    #!/usr/bin/env bash
+    if ! gum confirm "Enter experimental DX mode?" ; then
+        exit 0
+    fi
+
+    gum style --foreground 212 "󱗼 Initializing DX-Next environment..."
+    brew bundle --file=/usr/share/ublue-os/homebrew/dx-next.Brewfile
+
+    sudo cp /usr/share/ublue-os/dx/units/* /etc/systemd/system/
+    sudo systemctl enable brew-containerd
+    sudo systemctl enable brew-dockerd
+
+    /home/linuxbrew/.linuxbrew/bin/docker context use default
+
+    current=$(groups "$USER")
+    missing=()
+    for group in libvirt docker incus-admin; do
+        echo "$current" | grep -qw "$group" || missing+=("$group")
+    done
+
+    if [ ${#missing[@]} -ne 0 ]; then
+        gum format -- "Adding $USER to: **${missing[*]}**"
+        gum style --foreground 220 "⏻ Please reboot when the script is finished to apply group changes."
+        sudo mkdir -p /etc/sysusers.d/
+        printf "m %s %s\n" "$USER" "${missing[@]}" | sudo tee /etc/sysusers.d/dx-groups.conf > /dev/null
+        sudo systemd-sysusers /etc/sysusers.d/dx-groups.conf
+    fi
+    SOCKET_DIR="/run/libvirt-quadlet"
+    echo 'SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", MODE="0664", GROUP="libvirt"' | sudo tee /etc/udev/rules.d/50-spice-usb.rules
+    sudo mkdir -p /var/lib/images /var/lib/libvirt-quadlet /etc/libvirt-quadlet "$SOCKET_DIR"
+    sudo chmod 775 "$SOCKET_DIR"
+    sudo firewall-cmd --permanent --new-zone=libvirt
+    sudo firewall-cmd --permanent --zone=libvirt --set-target=ACCEPT
+    sudo firewall-cmd --reload
+
+    sudo cp /usr/share/ublue-os/dx/quadlets/* /etc/containers/systemd/
+    sudo systemctl enable libvirt-quadlet
+
+    gum style --foreground 39 "  Incus is available, but not started by default."
+    gum format -- "Use \`systemctl start incus-quadlet\` to start it."
+
+    gum style --border normal --margin "1 2" --padding "1 2" --border-foreground 212 \
+        "You are now testing the experimental DX mode. Please report any issues to the GitHub, or come talk with us on Discord!"

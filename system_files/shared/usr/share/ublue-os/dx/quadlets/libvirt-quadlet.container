@@ -1,0 +1,33 @@
+[Unit]
+Description=Libvirt Service in Podman
+After=network-online.target
+
+[Container]
+Image=ghcr.io/jumpyvi/qemu-box:latest
+Network=host
+
+PodmanArgs=--privileged --cgroupns=host --security-opt label=disable --pid=host
+
+# Dbus
+Mount=type=bind,source=/var/run/dbus/system_bus_socket,destination=/run/dbus/system_bus_socket
+
+# UDev
+Mount=type=bind,source=/var/run/udev,destination=/run/udev,ro
+
+# KVM & USB Devices
+AddDevice=/dev/kvm
+AddDevice=/dev/bus/usb
+Mount=type=bind,source=/var/run/libvirt-quadlet,destination=/run/libvirt
+
+# Storage
+Mount=type=bind,source=/var/lib/libvirt/images,destination=/var/lib/libvirt/images
+Mount=type=bind,source=/var/lib/libvirt-quadlet,destination=/var/lib/libvirt
+Mount=type=bind,source=/etc/libvirt-quadlet,destination=/etc/libvirt
+
+Exec=sh -c "virtlogd -d && libvirtd"
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+RuntimeDirectory=libvirt-quadlet
