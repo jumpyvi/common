@@ -1,6 +1,6 @@
 cask "ublue-os/experimental-tap/dockerd"
 cask "ublue-os/tap/vscode-linux"
-cask "adb"
+cask "android-platform-tools"
 flatpak "org.flatpak.Builder"
 brew "git-svn"
 brew "git-subrepo"

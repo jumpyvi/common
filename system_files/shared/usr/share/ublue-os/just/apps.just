@@ -117,5 +117,8 @@ dx-next:
     gum style --foreground 39 "  Incus is available, but not started by default."
     gum format -- "Use \`systemctl start incus-quadlet\` to start it."
 
-    gum style --border normal --margin "1 2" --padding "1 2" --border-foreground 212 \
-        "You are now testing the experimental DX mode. Please report any issues to the GitHub, or come talk with us on Discord!"
+    gum style --border normal --border-foreground 212 \
+        "You are now testing the experimental DX mode. Please report any issues to the GitHub, or come talk with us on Discord!
+        
+󰙯  https://discord.gg/8RZGC3uFzA
+  https://github.com/projectbluefin/common"
