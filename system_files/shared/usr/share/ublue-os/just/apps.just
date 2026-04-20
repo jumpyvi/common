@@ -100,7 +100,7 @@ dx-next:
         gum format -- "Adding $USER to: **${missing[*]}**"
         gum style --foreground 220 "⏻ Please reboot when the script is finished to apply group changes."
         sudo mkdir -p /etc/sysusers.d/
-        printf "m %s %s\n" "$USER" "${missing[@]}" | sudo tee /etc/sysusers.d/dx-groups.conf > /dev/null
+        for group in "${missing[@]}"; do echo "m $USER $group"; done | sudo tee /etc/sysusers.d/dx-groups.conf > /dev/null
         sudo systemd-sysusers /etc/sysusers.d/dx-groups.conf
     fi
     SOCKET_DIR="/run/libvirt-quadlet"
