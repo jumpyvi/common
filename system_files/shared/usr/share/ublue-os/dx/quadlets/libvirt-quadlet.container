@@ -23,7 +23,8 @@ Mount=type=bind,source=/var/run/libvirt-quadlet,destination=/run/libvirt
 # Storage
 Mount=type=bind,source=/var/lib/libvirt/images,destination=/var/lib/libvirt/images
 Mount=type=bind,source=/var/lib/libvirt-quadlet,destination=/var/lib/libvirt
-Mount=type=bind,source=/etc/libvirt-quadlet,destination=/etc/libvirt
+# Removed for now, causes issues 
+#Mount=type=bind,source=/etc/libvirt-quadlet,destination=/etc/libvirt
 
 Exec=sh -c "virtlogd -d && libvirtd"
 
