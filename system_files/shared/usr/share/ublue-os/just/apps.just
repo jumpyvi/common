@@ -127,5 +127,5 @@ dx-next:
     󰙯  https://discord.gg/8RZGC3uFzA
       https://github.com/projectbluefin/common"
 
-     flatpak override --user --filesystem=/run/libvirt-quadlet org.virt_manager.VirtManager
+     flatpak override --user --filesystem=/run/libvirt-quadlet org.virt_manager.virt-manager
      flatpak run org.virt_manager.virt-manager -c "qemu:///system?socket=/run/libvirt-quadlet/libvirt-sock"
