@@ -16,3 +16,7 @@ Volume=/lib/modules:/lib/modules:ro
 
 [Install]
 WantedBy=multi-user.target
+
+[Service]
+StateDirectory=incus
+ExecStartPost=bash -c 'until [ -S /var/lib/incus/unix.socket ]; do sleep 0.2; done; chgrp incus-admin /var/lib/incus/unix.socket'
