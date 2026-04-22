@@ -86,6 +86,9 @@ dx-next:
     brew install --cask ublue-os/tap/visual-studio-code-linux
     brew install --cask ublue-os/experimental-tap/dockerd-linux
 
+    #Remove this when my PR to experimental-tap is merged
+    brew install iptables
+
     sudo cp /usr/share/ublue-os/dx/units/* /etc/systemd/system/
     sudo systemctl daemon-reload
     sudo systemctl enable brew-containerd
