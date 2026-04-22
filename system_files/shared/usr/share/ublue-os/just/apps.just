@@ -86,9 +86,6 @@ dx-next:
     brew install --cask ublue-os/tap/visual-studio-code-linux
     brew install --cask ublue-os/experimental-tap/dockerd-linux
 
-    #Remove this when my PR to experimental-tap is merged
-    brew install iptables
-
     sudo cp /usr/share/ublue-os/dx/units/* /etc/systemd/system/
     sudo systemctl daemon-reload
     sudo systemctl enable brew-containerd
@@ -104,14 +101,13 @@ dx-next:
 
     if [ ${#missing[@]} -ne 0 ]; then
         gum format -- "Adding $USER to: **${missing[*]}**"
-        gum style --foreground 220 "⏻ Please reboot when the script is finished to apply group changes."
         sudo mkdir -p /etc/sysusers.d/
         for group in "${missing[@]}"; do echo "m $USER $group"; done | sudo tee /etc/sysusers.d/dx-groups.conf > /dev/null
         sudo systemd-sysusers /etc/sysusers.d/dx-groups.conf
     fi
-    SOCKET_DIR="/run/libvirt-quadlet"
+    SOCKET_DIR="/run/libvirt-dx"
     echo 'SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", MODE="0664", GROUP="libvirt"' | sudo tee /etc/udev/rules.d/50-spice-usb.rules
-    sudo mkdir -p /var/lib/images /var/lib/libvirt-quadlet /etc/libvirt-quadlet "$SOCKET_DIR"
+    sudo mkdir -p /var/lib/images /var/lib/libvirt-dx "$SOCKET_DIR"
     sudo chmod 775 "$SOCKET_DIR"
 
     if ! sudo firewall-cmd --permanent --get-zones | grep -qw libvirt; then
@@ -124,10 +120,15 @@ dx-next:
     sudo mkdir -p /var/lib/libvirt/images/
     sudo cp /usr/share/ublue-os/dx/quadlets/* /etc/containers/systemd/
     sudo systemctl daemon-reload
-    sudo systemctl start libvirt-quadlet
+    sudo systemctl start libvirt-dx
 
-    gum style --foreground 39 "  Incus is available, but not started by default."
-    gum format -- "Use \`systemctl start incus-quadlet\` to start it."
+    gum style --foreground="#cc3d19" "    Incus is now available, but not started by default."
+    gum format -- " Use \`systemctl start incus-dx\` to start it."
+
+    echo ""
+
+    gum style --foreground="#2c77df" "    Cockpit is now available, but not started by default."
+    gum format -- " Use \`systemctl start cockpit-dx\` to start it."
 
     gum style --border normal --border-foreground 212 \
         "You are now testing the experimental DX mode. Please report any issues to the GitHub, or come talk with us on Discord!
@@ -135,5 +136,7 @@ dx-next:
     󰙯  https://discord.gg/8RZGC3uFzA
       https://github.com/projectbluefin/common"
 
-     flatpak override --user --filesystem=/run/libvirt-quadlet org.virt_manager.virt-manager
-     flatpak run org.virt_manager.virt-manager -c "qemu:///system?socket=/run/libvirt-quadlet/libvirt-sock" &
+    gum style --foreground 220 "⏻ Please reboot to fully apply changes."
+
+    flatpak override --user --filesystem=/run/libvirt-dx org.virt_manager.virt-manager
+    flatpak run org.virt_manager.virt-manager -c "qemu:///system?socket=/run/libvirt-dx/libvirt-sock" &

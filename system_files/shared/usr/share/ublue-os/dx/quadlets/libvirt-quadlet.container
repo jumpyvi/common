@@ -19,10 +19,10 @@ Mount=type=bind,source=/var/run/udev,destination=/run/udev,ro
 AddDevice=/dev/kvm
 AddDevice=/dev/bus/usb
 Mount=type=bind,source=/dev/dri,destination=/dev/dri
-Mount=type=bind,source=/var/run/libvirt-quadlet,destination=/run/libvirt
+Mount=type=bind,source=/var/run/libvirt-dx,destination=/run/libvirt
 
 # Storage
-Mount=type=bind,source=/var/lib/libvirt-quadlet,destination=/var/lib/libvirt
+Mount=type=bind,source=/var/lib/libvirt-dx,destination=/var/lib/libvirt
 Volume=libvirt-conf:/etc/libvirt:Z
 
 Exec=sh -c "virtlogd -d && libvirtd"
@@ -31,4 +31,4 @@ Exec=sh -c "virtlogd -d && libvirtd"
 WantedBy=multi-user.target
 
 [Service]
-RuntimeDirectory=libvirt-quadlet
+RuntimeDirectory=libvirt-dx
