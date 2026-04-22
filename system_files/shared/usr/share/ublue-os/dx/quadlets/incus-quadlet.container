@@ -14,6 +14,10 @@ Volume=/dev:/dev
 Volume=/var/lib/incus:/var/lib/incus
 Volume=/lib/modules:/lib/modules:ro
 
+AddDevice=/dev/kvm
+AddDevice=/dev/bus/usb
+Mount=type=bind,source=/dev/dri,destination=/dev/dri
+
 [Install]
 WantedBy=multi-user.target
 
