@@ -78,7 +78,7 @@ dx-virt:
     sudo mkdir -p /var/lib/libvirt-dx/images/
     sudo cp /usr/share/ublue-os/dx/quadlets/libvirt-dx.container /etc/containers/systemd/
     sudo systemctl daemon-reload
-    sudo systemctl enable --now libvirt-dx
+    sudo systemctl start libvirt-dx
 
     flatpak override --user --filesystem=/run/libvirt-dx org.virt_manager.virt-manager
     flatpak run org.virt_manager.virt-manager -c "qemu:///system?socket=/run/libvirt-dx/libvirt-sock" &>/dev/null &
@@ -91,7 +91,7 @@ dx-incus:
     brew install incus
     sudo cp /usr/share/ublue-os/dx/quadlets/incus-dx.container /etc/containers/systemd/
     sudo systemctl daemon-reload
-    sudo systemctl enable --now incus-dx
+    sudo systemctl start incus-dx
 
 # Setup cockpit with quadlet
 dx-cockpit:
@@ -99,4 +99,4 @@ dx-cockpit:
     gum style --foreground "#2c77df" "  Enabling and Starting Cockpit..."
     sudo cp /usr/share/ublue-os/dx/quadlets/cockpit-dx.container /etc/containers/systemd/
     sudo systemctl daemon-reload
-    sudo systemctl enable --now cockpit-dx
+    sudo systemctl start cockpit-dx
