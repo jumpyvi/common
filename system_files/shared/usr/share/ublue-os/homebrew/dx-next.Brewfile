@@ -2,7 +2,6 @@ tap "ublue-os/experimental-tap"
 tap "ublue-os/tap"
 
 
-#brew "ublue-os/tap/visual-studio-code-linux"
 cask "android-platform-tools"
 flatpak "org.flatpak.Builder"
 brew "git-svn"
@@ -14,17 +13,17 @@ brew "podman-compose"
 brew "podman-tui"
 #brew "sysprof"
 brew "ublue-os/experimental-tap/ydotool"
-flatpak "org.virt_manager.virt-manager"
-flatpak "org.virt_manager.virt_manager.Extension.Qemu"
 
 # New
 brew "lima"
 brew "kind"
 brew "incus"
+brew "squashfs"
+brew "devcontainer"
 vscode "ms-vscode-remote.remote-containers"
+flatpak "io.podman_desktop.PodmanDesktop"
 
 # Wall of shame
-#cockpit
 #iotop
 #bcc
 #bpftrace

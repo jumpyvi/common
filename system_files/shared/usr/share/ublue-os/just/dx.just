@@ -22,13 +22,6 @@ dx-tools:
     gum style --foreground 212 "󱁯 Installing DX-Tools & Base Apps..."
     brew bundle --file=/usr/share/ublue-os/homebrew/dx-next.Brewfile
     brew install --cask ublue-os/tap/visual-studio-code-linux
-    
-    
-    sudo cp /usr/share/ublue-os/dx/units/system/* /etc/systemd/system/
-    cp /usr/share/ublue-os/dx/units/user/* ~/.config/systemd/user/
-    
-    sudo systemctl daemon-reload
-    systemctl --user daemon-reload
 
 # Setup rootless and rootfull docker with brew
 dx-docker:
@@ -66,6 +59,10 @@ dx_docker-root:
 dx-virt:
     #!/usr/bin/env bash
     gum style --foreground 212 "  Setting up Libvirt/QEMU..."
+    flatpak install -y org.virt_manager.virt-manager
+    flatpak install -y org.virt_manager.virt_manager.Extension.Qemu
+
+
     SOCKET_DIR="/run/libvirt-dx"
     echo 'SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", MODE="0664", GROUP="libvirt"' | sudo tee /etc/udev/rules.d/50-spice-usb.rules
     sudo mkdir -p /var/lib/libvirt-dx "$SOCKET_DIR"
