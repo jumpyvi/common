@@ -74,72 +74,74 @@ cncf:
     fi
     bbrew -f "/usr/share/ublue-os/homebrew/cncf.Brewfile"
 
+dx_justfile := "/usr/share/ublue-os/just/dx.just"
 # Experimental DX mode
 dx-next:
     #!/usr/bin/env bash
-    if ! gum confirm "Enter experimental DX mode?" ; then
+    if ! gum confirm "Enter experimental DX mode?"; then
+        exit 0
+    fi
+
+    gum style \
+        --border rounded \
+        --border-foreground 212 \
+        --padding "0 2" \
+        --margin "1 0" \
+        "DX-Next Environment Setup" "Please select your installation path."
+
+    MODE=$(gum choose "Default" "Customize" --header "Installation Mode")
+
+    if [ -z "$MODE" ]; then
+        gum style --foreground 196 "Setup cancelled."
+        exit 0
+    fi
+
+    if [ "$MODE" = "Default" ]; then
+        CHOICES="Virt Docker DX-Tools"
+        gum style --foreground 242 "Proceeding with Default options: $CHOICES"
+    else
+        echo ""
+        gum style --foreground 242 "  Use <space> to select/deselect, <enter> to confirm"
+        CHOICES=$(gum choose --no-limit \
+            --selected="Virt,Docker,DX-Tools" \
+            --header="--- Select Components ---" \
+            --cursor.foreground 212 --selected.foreground 212 \
+            "Virt" "Docker" "DX-Tools" "Incus" "Cockpit")
+    fi
+
+    if [ -z "$CHOICES" ]; then
+        gum style --foreground 196 "No options selected. Exiting."
         exit 0
     fi
 
     gum style --foreground 212 "󱗼 Initializing DX-Next environment..."
-    brew bundle --file=/usr/share/ublue-os/homebrew/dx-next.Brewfile
-    brew install --cask ublue-os/tap/visual-studio-code-linux
-    brew install docker-engine iptables rootlesskit slirp4netns docker
 
-    mkdir -p /.config/systemd/user/
-    sudo cp /usr/share/ublue-os/dx/units/system/* /etc/systemd/system/
-    cp /usr/share/ublue-os/dx/units/user/* ~/.config/systemd/user/
+    # Always run group setup
+    just -f {{dx_justfile}} dx-groups
 
-    DOCKER_CLI="${HOMEBREW_PREFIX:-/usr/local}/bin/docker"
-    DOCKER_SOCKET="unix:///run/user/$(id -u)/docker.sock"
-
-    CONTEXT_CREATE_CMD="$DOCKER_CLI context create rootless --docker host=$DOCKER_SOCKET"
-
-    $DOCKER_CLI context inspect rootless >/dev/null 2>&1 || $CONTEXT_CREATE_CMD
-
-    sudo systemctl daemon-reload
-    sudo systemctl enable --now dockerd-dx
-
-    systemctl --user daemon-reload
-    systemctl start dockerd-rootless-dx
-
-    current=$(groups "$USER")
-    missing=()
-    for group in libvirt docker incus-admin; do
-        echo "$current" | grep -qw "$group" || missing+=("$group")
-    done
-
-    if [ ${#missing[@]} -ne 0 ]; then
-        gum format -- "Adding $USER to: **${missing[*]}**"
-        sudo mkdir -p /etc/sysusers.d/
-        for group in "${missing[@]}"; do echo "m $USER $group"; done | sudo tee /etc/sysusers.d/dx-groups.conf > /dev/null
-        sudo systemd-sysusers /etc/sysusers.d/dx-groups.conf
+    # All subchoices
+    if echo "$CHOICES" | grep -q "DX-Tools"; then
+        just -f {{dx_justfile}} dx-tools
     fi
-    SOCKET_DIR="/run/libvirt-dx"
-    echo 'SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", MODE="0664", GROUP="libvirt"' | sudo tee /etc/udev/rules.d/50-spice-usb.rules
-    sudo mkdir -p /var/lib/images /var/lib/libvirt-dx "$SOCKET_DIR"
-    sudo chmod 775 "$SOCKET_DIR"
 
-    if ! sudo firewall-cmd --permanent --get-zones | grep -qw libvirt; then
-    sudo firewall-cmd --permanent --new-zone=libvirt
+    if echo "$CHOICES" | grep -q "Docker"; then
+        just -f {{dx_justfile}} dx-docker
     fi
-    sudo firewall-cmd --permanent --zone=libvirt --set-target=ACCEPT
-    sudo firewall-cmd --reload
 
-    sudo mkdir -p /etc/containers/systemd/
-    sudo mkdir -p /var/lib/libvirt-dx/images/
-    sudo cp /usr/share/ublue-os/dx/quadlets/* /etc/containers/systemd/
-    sudo systemctl daemon-reload
-    sudo systemctl start libvirt-dx
+    if echo "$CHOICES" | grep -q "Virt"; then
+        just -f {{dx_justfile}} dx-virt
+    fi
 
-    gum style --foreground="#cc3d19" "    Incus is now available, but not started by default."
-    gum format -- " Use \`systemctl start incus-dx\` to start it."
+    if echo "$CHOICES" | grep -q "Incus"; then
+        just -f {{dx_justfile}} dx-incus
+    fi
 
+    if echo "$CHOICES" | grep -q "Cockpit"; then
+        just -f {{dx_justfile}} dx-cockpit
+    fi
+
+    # Final Banner
     echo ""
-
-    gum style --foreground="#2c77df" "    Cockpit is now available, but not started by default."
-    gum format -- " Use \`systemctl start cockpit-dx\` to start it."
-
     gum style --border normal --border-foreground 212 \
         "You are now testing the experimental DX mode. Please report any issues to the GitHub, or come talk with us on Discord!
         
@@ -147,6 +149,3 @@ dx-next:
       https://github.com/projectbluefin/common"
 
     gum style --foreground 220 "⏻ Please reboot to fully apply changes."
-
-    flatpak override --user --filesystem=/run/libvirt-dx org.virt_manager.virt-manager
-    flatpak run org.virt_manager.virt-manager -c "qemu:///system?socket=/run/libvirt-dx/libvirt-sock" &
