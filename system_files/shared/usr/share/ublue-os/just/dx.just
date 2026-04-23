@@ -46,7 +46,7 @@ dx-docker-rootless:
     systemctl --user daemon-reload
     systemctl --user enable --now dockerd-rootless-dx
 
-dx_docker-root:
+dx-docker-root:
     #!/usr/bin/env bash
     gum style --foreground 212 "󰡨 Setting up Rootfull Docker..."
     sudo cp /usr/share/ublue-os/dx/units/system/dockerd-dx.service /etc/systemd/system/
