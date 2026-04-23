@@ -26,8 +26,8 @@ dx-tools:
 # Setup rootless and rootfull docker with brew
 dx-docker:
     #!/usr/bin/env bash
-    just -f {{dx_justfile}} _dx-docker-rootless
-    just -f {{dx_justfile}} _dx-docker-root
+    just -f {{dx_justfile}} dx-docker-rootless
+    just -f {{dx_justfile}} dx-docker-root
 
 
 dx-docker-rootless:
