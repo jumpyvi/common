@@ -34,15 +34,11 @@ dx-docker-rootless:
     #!/usr/bin/env bash
     gum style --foreground 212 "󰡨 Setting up Rootless Docker..."
     
-    brew install docker-engine iptables rootlesskit slirp4netns docker
+    brew install docker
+    brew install --cask ublue-os/experimental-tap/dockerd-linux
     mkdir -p ~/.config/systemd/user/
     cp /usr/share/ublue-os/dx/units/user/dockerd-rootless-dx.service ~/.config/systemd/user/
     
-    DOCKER_CLI="${HOMEBREW_PREFIX:-/usr/local}/bin/docker"
-    DOCKER_SOCKET="unix:///run/user/$(id -u)/docker.sock"
-
-    CONTEXT_CREATE_CMD="$DOCKER_CLI context create rootless --docker host=$DOCKER_SOCKET"
-    $DOCKER_CLI context inspect rootless >/dev/null 2>&1 || $CONTEXT_CREATE_CMD
     systemctl --user daemon-reload
     systemctl --user enable --now dockerd-rootless-dx
 
@@ -50,9 +46,11 @@ dx-docker-root:
     #!/usr/bin/env bash
     gum style --foreground 212 "󰡨 Setting up Rootfull Docker..."
     sudo cp /usr/share/ublue-os/dx/units/system/dockerd-dx.service /etc/systemd/system/
-    brew install docker-engine iptables docker
+    brew install --cask ublue-os/experimental-tap/dockerd-linux
+    brew install iptables docker
     sudo systemctl daemon-reload
     sudo systemctl enable --now dockerd-dx
+    /home/linuxbrew/.linuxbrew/bin/docker context switch default
 
 
 # Setup qemu/libvirt using quadlets
