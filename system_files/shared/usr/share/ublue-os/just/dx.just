@@ -57,8 +57,8 @@ dx-docker-root:
 dx-virt:
     #!/usr/bin/env bash
     gum style --foreground 212 "  Setting up Libvirt/QEMU..."
-    flatpak install -y org.virt_manager.virt-manager
-    flatpak install -y org.virt_manager.virt_manager.Extension.Qemu
+    flatpak install --system -y org.virt_manager.virt-manager
+    flatpak install --system -y org.virt_manager.virt_manager.Extension.Qemu
 
 
     SOCKET_DIR="/run/libvirt-dx"

@@ -12,7 +12,7 @@ brew "p7zip"
 brew "podman-compose"
 brew "podman-tui"
 #brew "sysprof"
-brew "ublue-os/experimental-tap/ydotool"
+#brew "ublue-os/experimental-tap/ydotool"
 
 # New
 brew "lima"
@@ -20,7 +20,6 @@ brew "kind"
 brew "incus"
 brew "squashfs"
 brew "devcontainer"
-vscode "ms-vscode-remote.remote-containers"
 flatpak "io.podman_desktop.PodmanDesktop"
 
 # Wall of shame
