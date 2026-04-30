@@ -24,34 +24,44 @@ dx-tools:
     brew bundle --file=/usr/share/ublue-os/homebrew/dx-next.Brewfile
     brew install --cask ublue-os/tap/visual-studio-code-linux
 
-# Setup rootless and rootfull docker with brew
+
 dx-docker:
     #!/usr/bin/env bash
-    just -f {{dx_justfile}} dx-docker-rootless
-    just -f {{dx_justfile}} dx-docker-root
+    if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    fi
 
-
-dx-docker-rootless:
-    #!/usr/bin/env bash
-    gum style --foreground 212 "󰡨 Setting up Rootless Docker..."
+    if [[ "$ID_LIKE" == *"org.gnome.os"* ]]; then
+        just -f {{dx_justfile}} dx-docker-dakota
+    else
+        just -f {{dx_justfile}} dx-docker-se
+    fi
     
-    brew install docker
-    brew install --cask ublue-os/experimental-tap/dockerd-linux
-    mkdir -p ~/.config/systemd/user/
-    cp /usr/share/ublue-os/dx/units/user/dockerd-rootless-dx.service ~/.config/systemd/user/
-    
-    systemctl --user daemon-reload
-    systemctl --user enable --now dockerd-rootless-dx
-
-dx-docker-root:
+# Docker for GnomeOS-like
+dx-docker-dakota:
     #!/usr/bin/env bash
-    gum style --foreground 212 "󰡨 Setting up Rootfull Docker..."
-    sudo cp /usr/share/ublue-os/dx/units/system/dockerd-dx.service /etc/systemd/system/
-    brew install --cask ublue-os/experimental-tap/dockerd-linux
-    brew install iptables docker
-    sudo systemctl daemon-reload
-    sudo systemctl enable --now dockerd-dx
-    /home/linuxbrew/.linuxbrew/bin/docker context switch default
+    gum style --foreground 212 "󰡨 Setting up Docker for Dakota..."
+    sudo mkdir -p /opt/extensions/
+    sudo mkdir -p /etc/sysupdate.docker.d/
+    curl -sSL "https://github.com/flatcar/sysext-bakery/releases/download/docker/docker.conf" \
+    | sudo tee /etc/sysupdate.docker.d/docker.conf > /dev/null
+
+    sudo /usr/lib/systemd/systemd-sysupdate -C docker update
+    sudo systemd-sysext refresh
+
+# Docker for SELinux
+dx-docker-se:
+    #!/usr/bin/env bash
+    gum style --foreground 212 "󰡨 Setting up Docker for SELinux..."
+    sudo install -d -m 0755 -o 0 -g 0 "/var/lib/extensions" "/var/lib/extensions.d"
+    sudo restorecon -RFv "/var/lib/extensions" "/var/lib/extensions.d"
+    sudo systemctl enable --now systemd-sysext.service
+    sudo install -d -m 0755 -o 0 -g 0 "/etc/sysupdate.docker-ce.d"
+    sudo restorecon -RFv "/etc/sysupdate.docker-ce.d"
+    curl --silent --fail --location "https://extensions.fcos.fr/community/docker-ce.conf" \
+    | sudo tee "/etc/sysupdate.docker-ce.d/docker-ce.conf"
+
+    sudo /usr/lib/systemd/systemd-sysupdate update --component "docker-ce"
 
 
 # Setup qemu/libvirt using quadlets
@@ -76,8 +86,11 @@ dx-virt:
     sudo mkdir -p /etc/containers/systemd/
     sudo mkdir -p /var/lib/libvirt-dx/images/
     sudo cp /usr/share/ublue-os/dx/quadlets/libvirt-dx.container /etc/containers/systemd/
-    sudo chown -R root:libvirt /var/lib/libvirt-dx/images
+    sudo chgrp -R libvirt /var/lib/libvirt-dx/images
     sudo chmod -R 775 /var/lib/libvirt-dx/images
+
+    sudo podman pull ghcr.io/jumpyvi/qemu-box:latest
+
     sudo systemctl daemon-reload
     sudo systemctl start libvirt-dx
 
