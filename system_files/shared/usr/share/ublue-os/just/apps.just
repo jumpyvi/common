@@ -106,7 +106,7 @@ dx-next:
             --selected="Virt,Docker,DX-Tools" \
             --header="--- Select Components ---" \
             --cursor.foreground 212 --selected.foreground 212 \
-            "Virt" "Docker" "DX-Tools" "Incus" "Cockpit")
+            "Virt" "Docker" "DX-Tools" "Incus")
     fi
 
     if [ -z "$CHOICES" ]; then
@@ -134,10 +134,6 @@ dx-next:
 
     if echo "$CHOICES" | grep -q "Incus"; then
         just -f {{dx_justfile}} dx-incus
-    fi
-
-    if echo "$CHOICES" | grep -q "Cockpit"; then
-        just -f {{dx_justfile}} dx-cockpit
     fi
 
     # Final Banner

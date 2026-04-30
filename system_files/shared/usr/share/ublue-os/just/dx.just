@@ -62,7 +62,7 @@ dx-docker-se:
     | sudo tee "/etc/sysupdate.docker-ce.d/docker-ce.conf"
 
     sudo /usr/lib/systemd/systemd-sysupdate update --component "docker-ce"
-
+    sudo systemd-sysext refresh
 
 # Setup qemu/libvirt using quadlets
 dx-virt:
